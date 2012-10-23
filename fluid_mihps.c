@@ -1,11 +1,11 @@
- 
+
 #include <time.h>
 #include <stdio.h>
 #include <math.h>
 
 #define build_index(i,j,grid_size) ( (i) + ( (grid_size ) + 2) * (j) )
 #define min(i,j) ((i) < (j) ? (i) : (j))
-#define BS 64
+#define BS 63
  
 /*
  * function used to compute the linear position in a vector express as coordinate in a two-D structure
@@ -97,8 +97,7 @@ void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int gr
   int i,j,k;
   int l, m;
 
-  float x11, x12, x21, x22;
-  c = 1/c;
+  const float rc = 1/c;
 
   for (k = 0; k < 20; k++)
   {
@@ -106,39 +105,58 @@ void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int gr
     {
       for (j = 1; j <= grid_size; j+=BS)
       {
-        for (l = i; l < min (grid_size+1, i+BS); l+=2)
+        for (l = i; l < min (grid_size+1, i+BS); l+=3)
         {
-          for (m = j; m < min (grid_size+1, j+BS); m+=2)
+          for (m = j; m < min (grid_size+1, j+BS); m+=3)
           {
-            x11 = x[build_index (l, m, grid_size)];
-            x12 = x[build_index (l, m+1, grid_size)];
-            x21 = x[build_index (l+1, m, grid_size)];
-            x22 = x[build_index (l+1, m+1, grid_size)];
+            const float x11 = x[build_index (l, m, grid_size)];
+            const float x12 = x[build_index (l, m+1, grid_size)];
+            const float x13 = x[build_index (l, m+2, grid_size)];
+            const float x21 = x[build_index (l+1, m, grid_size)];
+            const float x22 = x[build_index (l+1, m+1, grid_size)];
+            const float x23 = x[build_index (l+1, m+2, grid_size)];
+            const float x31 = x[build_index (l+2, m, grid_size)];
+            const float x32 = x[build_index (l+2, m+1, grid_size)];
+            const float x33 = x[build_index (l+2, m+2, grid_size)];
 
-            x11 =
+            x[build_index (l, m, grid_size)] =
               (a * ( x[build_index(l-1, m, grid_size)] + x21 
               +   x[build_index(l, m-1, grid_size)] + x12)
-              +  x0[build_index(l, m, grid_size)]) * c;
+              +  x0[build_index(l, m, grid_size)]) * rc;
 
-            x12 =
+            x[build_index (l, m+1, grid_size)] =
               (a * ( x[build_index(l-1, m+1, grid_size)] + x22 
-              +   x11 + x[build_index(l, m+2, grid_size)])
-              +  x0[build_index(l, m+1, grid_size)]) * c;
+              + x11 + x13)
+              +  x0[build_index(l, m+1, grid_size)]) * rc;
 
-            x21 =
-              (a * ( x11 + x[build_index(l+2, m, grid_size)] 
-              +   x[build_index(l+1, m-1, grid_size)] + x22)
-              +  x0[build_index(l+1, m, grid_size)]) * c;
+            x[build_index (l, m+2, grid_size)] =
+              (a * ( x[build_index(l-1, m+2, grid_size)] + x12 
+              + x23 + x[build_index(l, m+3, grid_size)])
+              +  x0[build_index(l, m+2, grid_size)]) * rc;
 
-            x22 =
-              (a * ( x12 + x[build_index(l+2, m+1, grid_size)] 
-              +   x21 + x[build_index(l+1, m+2, grid_size)])
-              +  x0[build_index(l+1, m+1, grid_size)]) * c;
+            x[build_index (l+1, m, grid_size)] =
+              (a * ( x11 +x22 + x31 
+              +   x[build_index(l+1, m-1, grid_size)])
+              +  x0[build_index(l+1, m, grid_size)]) * rc;
 
-            x[build_index (l, m, grid_size)] = x11;
-            x[build_index (l, m+1, grid_size)] = x12;
-            x[build_index (l+1, m, grid_size)] = x21;
-            x[build_index (l+1, m+1, grid_size)] = x22;
+            x[build_index (l+1, m+1, grid_size)] =
+              (a * ( x12 + x32 
+              +   x21 + x23)
+              +  x0[build_index(l+1, m+1, grid_size)]) * rc;
+
+            x[build_index (l+1, m+2, grid_size)] = (a * (x13 + x[build_index(l+1, m+3, grid_size)] + x22 + x33)
+              + x0[build_index(l+1, m+2, grid_size)]) * rc;
+
+            x[build_index (l+2, m, grid_size)] = (a * (x21 + x32 + x[build_index(l+2, m-1, grid_size)]
+              + x[build_index(l+3, m, grid_size)])
+              + x0[build_index (l+2, m, grid_size)]) * rc;
+
+            x[build_index (l+2, m+1, grid_size)] = (a * (x22 + x33 + x31 + x[build_index(l+3, m+1, grid_size)]) 
+              + x0[build_index(l+2, m+1, grid_size)]) * rc;
+
+            x[build_index (l+2, m+2, grid_size)] = (a * (x23 + x32 + x[build_index(l+2, m+3, grid_size)]
+              + x[build_index(l+3, m+2, grid_size)])
+              + x0[build_index(l+2, m+2, grid_size)]) * rc;
           }
         }
       }
