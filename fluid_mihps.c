@@ -4,6 +4,7 @@
 #include <math.h>
 
 #define build_index(i,j,grid_size) ( (i) + ( (grid_size ) + 2) * (j) )
+#define BS 50
  
 /*
  * function used to compute the linear position in a vector express as coordinate in a two-D structure
@@ -95,20 +96,47 @@ void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int gr
   int i,j,k;
   int l, m;
 
+  float x11, x12, x21, x22;
+
   for (k = 0; k < 20; k++)
   {
-    for (i = 1; i <= grid_size; i+=50)
+    for (i = 1; i <= grid_size; i+=BS)
     {
-      for (j = 1; j <= grid_size; j+=50)
+      for (j = 1; j <= grid_size; j+=BS)
       {
-        for (l = i; l < i+50; ++l)
+        for (l = i; l < i+BS; l+=2)
         {
-          for (m = j; m < j+50; ++m)
+          for (m = j; m < j+BS; m+=2)
           {
-            x[build_index(l, m, grid_size)] =
-              (a * ( x[build_index(l-1, m, grid_size)] + x[build_index(l+1, m, grid_size)] 
-              +   x[build_index(l, m-1, grid_size)] + x[build_index(l, m+1, grid_size)])
+            x11 = x[build_index (l, m, grid_size)];
+            x12 = x[build_index (l, m+1, grid_size)];
+            x21 = x[build_index (l+1, m, grid_size)];
+            x22 = x[build_index (l+1, m+1, grid_size)];
+
+            x11 =
+              (a * ( x[build_index(l-1, m, grid_size)] + x21 
+              +   x[build_index(l, m-1, grid_size)] + x12)
               +  x0[build_index(l, m, grid_size)]) / c;
+
+            x12 =
+              (a * ( x[build_index(l-1, m+1, grid_size)] + x22 
+              +   x11 + x[build_index(l, m+2, grid_size)])
+              +  x0[build_index(l, m+1, grid_size)]) / c;
+
+            x21 =
+              (a * ( x11 + x[build_index(l+2, m, grid_size)] 
+              +   x[build_index(l+1, m-1, grid_size)] + x22)
+              +  x0[build_index(l+1, m, grid_size)]) / c;
+
+            x22 =
+              (a * ( x12 + x[build_index(l+2, m+1, grid_size)] 
+              +   x21 + x[build_index(l+1, m+2, grid_size)])
+              +  x0[build_index(l+1, m+1, grid_size)]) / c;
+
+            x[build_index (l, m, grid_size)] = x11;
+            x[build_index (l, m+1, grid_size)] = x12;
+            x[build_index (l+1, m, grid_size)] = x21;
+            x[build_index (l+1, m+1, grid_size)] = x22;
           }
         }
       }
