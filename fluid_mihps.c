@@ -4,7 +4,8 @@
 #include <math.h>
 
 #define build_index(i,j,grid_size) ( (i) + ( (grid_size ) + 2) * (j) )
-#define BS 50
+#define min(i,j) ((i) < (j) ? (i) : (j))
+#define BS 64
  
 /*
  * function used to compute the linear position in a vector express as coordinate in a two-D structure
@@ -104,9 +105,9 @@ void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int gr
     {
       for (j = 1; j <= grid_size; j+=BS)
       {
-        for (l = i; l < i+BS; l+=2)
+        for (l = i; l < min (grid_size+1, i+BS); l+=2)
         {
-          for (m = j; m < j+BS; m+=2)
+          for (m = j; m < min (grid_size+1, j+BS); m+=2)
           {
             x11 = x[build_index (l, m, grid_size)];
             x12 = x[build_index (l, m+1, grid_size)];
