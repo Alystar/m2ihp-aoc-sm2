@@ -98,6 +98,7 @@ void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int gr
   int l, m;
 
   float x11, x12, x21, x22;
+  c = 1/c;
 
   for (k = 0; k < 20; k++)
   {
@@ -117,22 +118,22 @@ void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int gr
             x11 =
               (a * ( x[build_index(l-1, m, grid_size)] + x21 
               +   x[build_index(l, m-1, grid_size)] + x12)
-              +  x0[build_index(l, m, grid_size)]) / c;
+              +  x0[build_index(l, m, grid_size)]) * c;
 
             x12 =
               (a * ( x[build_index(l-1, m+1, grid_size)] + x22 
               +   x11 + x[build_index(l, m+2, grid_size)])
-              +  x0[build_index(l, m+1, grid_size)]) / c;
+              +  x0[build_index(l, m+1, grid_size)]) * c;
 
             x21 =
               (a * ( x11 + x[build_index(l+2, m, grid_size)] 
               +   x[build_index(l+1, m-1, grid_size)] + x22)
-              +  x0[build_index(l+1, m, grid_size)]) / c;
+              +  x0[build_index(l+1, m, grid_size)]) * c;
 
             x22 =
               (a * ( x12 + x[build_index(l+2, m+1, grid_size)] 
               +   x21 + x[build_index(l+1, m+2, grid_size)])
-              +  x0[build_index(l+1, m+1, grid_size)]) / c;
+              +  x0[build_index(l+1, m+1, grid_size)]) * c;
 
             x[build_index (l, m, grid_size)] = x11;
             x[build_index (l, m+1, grid_size)] = x12;
