@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-Wall -O2
+CC=icc
+CFLAGS=-Wall -fast
 LDFLAGS=-lm -pg
 
 OBJS=driver.o rdtsc.o fluid_mihps.o
