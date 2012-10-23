@@ -8,11 +8,11 @@
 /*
  * function used to compute the linear position in a vector express as coordinate in a two-D structure
  */
-/*static vint build_index(int i, int j, int grid_size)
+/*static int build_index(int i, int j, int grid_size)
   {
-  return (i + (grid_size + 2) * j);
-  }
-*/
+  return ((i) + ((grid_size) + 2) * (j));
+  }*/
+
 /*
  * Utility function to push new value in the array of a preceding time step
  *
