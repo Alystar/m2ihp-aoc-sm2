@@ -93,21 +93,28 @@ void setBoundry(int b, float* x, int grid_size)
 void linearSolver(int b, float* x, float* x0, float a, float c, float dt, int grid_size)
   {
   int i,j,k;
+  int l, m;
 
   for (k = 0; k < 20; k++)
+  {
+    for (i = 1; i <= grid_size; i+=50)
     {
-    for (i = 1; i <= grid_size; i++)
+      for (j = 1; j <= grid_size; j+=50)
       {
-      for (j = 1; j <= grid_size; j++)
+        for (l = i; l < i+50; ++l)
         {
-        x[build_index(i, j, grid_size)] =
-          (a * ( x[build_index(i-1, j, grid_size)] + x[build_index(i+1, j, grid_size)] 
-            +   x[build_index(i, j-1, grid_size)] + x[build_index(i, j+1, grid_size)])
-           +  x0[build_index(i, j, grid_size)]) / c;
+          for (m = j; m < j+50; ++m)
+          {
+            x[build_index(l, m, grid_size)] =
+              (a * ( x[build_index(l-1, m, grid_size)] + x[build_index(l+1, m, grid_size)] 
+              +   x[build_index(l, m-1, grid_size)] + x[build_index(l, m+1, grid_size)])
+              +  x0[build_index(l, m, grid_size)]) / c;
+          }
         }
       }
-    setBoundry(b, x, grid_size);
     }
+    setBoundry(b, x, grid_size);
+  }
   }
 
 /*
